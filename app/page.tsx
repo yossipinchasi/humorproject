@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
+// Query Supabase on every request instead of freezing the rows at build time.
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
