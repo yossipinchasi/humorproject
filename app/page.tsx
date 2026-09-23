@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 // Query Supabase on every request instead of freezing the rows at build time.
@@ -20,6 +21,10 @@ export default async function Home() {
 
     return (
         <main>
+            <nav>
+                <Link href="/login">Log in</Link> | <Link href="/protected">Protected page</Link>
+            </nav>
+
             <h1>AI Agents</h1>
 
             <ul>
