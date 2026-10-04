@@ -6,7 +6,7 @@ import GoogleSignInButton from "./google-sign-in-button";
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
     const supabase = await createClient();
     const { data } = await supabase.auth.getClaims();
-    if (data?.claims) redirect("/protected");
+    if (data?.claims) redirect("/");
 
     const { error } = await searchParams;
 

@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Refreshes the auth session on every request and redirects
-// unauthenticated visitors away from /protected.
+// unauthenticated visitors away from /protected and /upload.
 export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({ request });
 
@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
     const { data } = await supabase.auth.getClaims();
     const user = data?.claims;
 
-    if (!user && request.nextUrl.pathname.startsWith("/protected")) {
+    if (!user && (request.nextUrl.pathname.startsWith("/protected") || request.nextUrl.pathname.startsWith("/upload"))) {
         const url = request.nextUrl.clone();
         url.pathname = "/login";
         url.search = "";
