@@ -17,7 +17,7 @@ It's built for Sam: a Columbia junior who is chronically online, grew up in the 
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys (already set) |
    | `SUPABASE_SECRET_KEY` | Supabase → Project Settings → API Keys → **Secret key** (`sb_secret_…`). Server only, never expose it. |
    | `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) (free tier) |
-   | `GEMINI_MODEL` | Optional. Defaults to `gemini-flash-latest`. |
+   | `GEMINI_MODEL` | Optional. Defaults to `gemini-flash-latest`; falls back to `gemini-flash-lite-latest` when busy. |
 
 3. `npm run dev` and open http://localhost:3000.
 

@@ -1,7 +1,9 @@
 import "server-only";
 import { GoogleGenAI, Type } from "@google/genai";
 
-export const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+// Tried in order: Gemini's free tier often returns 503 "high demand" for the
+// main Flash model, so fall back to the lighter one instead of failing.
+const MODELS = [process.env.GEMINI_MODEL ?? "gemini-flash-latest", "gemini-flash-lite-latest"];
 
 const STYLES = ["dorm life", "nyc newcomer", "chronically online", "deadpan", "wholesome"] as const;
 
@@ -38,11 +40,29 @@ export function buildCaptionPrompt(context: string | null) {
 export async function generateCaptions(
     image: { data: Buffer; mimeType: string },
     prompt: string
-): Promise<GeneratedCaption[]> {
+): Promise<{ captions: GeneratedCaption[]; model: string }> {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
+    let lastError: unknown;
+    for (const model of MODELS) {
+        try {
+            return { captions: await callModel(ai, model, image, prompt), model };
+        } catch (e) {
+            console.error(`Gemini model ${model} failed:`, e instanceof Error ? e.message : e);
+            lastError = e;
+        }
+    }
+    throw lastError;
+}
+
+async function callModel(
+    ai: GoogleGenAI,
+    model: string,
+    image: { data: Buffer; mimeType: string },
+    prompt: string
+): Promise<GeneratedCaption[]> {
     const response = await ai.models.generateContent({
-        model: GEMINI_MODEL,
+        model,
         contents: [
             {
                 role: "user",

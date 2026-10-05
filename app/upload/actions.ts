@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { IMAGE_BUCKET } from "@/lib/images";
-import { buildCaptionPrompt, generateCaptions, GEMINI_MODEL } from "@/lib/gemini";
+import { buildCaptionPrompt, generateCaptions } from "@/lib/gemini";
 
 export type UploadState = { error: string | null };
 
@@ -51,9 +51,9 @@ export async function createPost(_prev: UploadState, formData: FormData): Promis
     const prompt = buildCaptionPrompt(context);
 
     // Generate first so a failed generation doesn't leave an orphaned upload.
-    let captions;
+    let captions, model;
     try {
-        captions = await generateCaptions({ data, mimeType: file.type }, prompt);
+        ({ captions, model } = await generateCaptions({ data, mimeType: file.type }, prompt));
     } catch (e) {
         console.error("Caption generation failed:", e);
         return { error: "The AI couldn't caption that photo. Try a different one." };
@@ -91,7 +91,7 @@ export async function createPost(_prev: UploadState, formData: FormData): Promis
                   content: c.content,
                   style: c.style,
                   prompt,
-                  model: GEMINI_MODEL,
+                  model,
               }))
           );
 
