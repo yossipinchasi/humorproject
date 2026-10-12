@@ -21,8 +21,12 @@ export default function ShareButton({ path, text }: { path: string; text: string
     }
 
     return (
-        <button type="button" onClick={share} className="text-sm text-accent hover:underline">
-            {copied ? "Link copied!" : "Share"}
+        <button
+            type="button"
+            onClick={share}
+            className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition hover:opacity-90"
+        >
+            {copied ? "✓ Link copied" : "↗ Share"}
         </button>
     );
 }

@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { imageUrl } from "@/lib/images";
 import { getMyVotes } from "@/lib/votes";
-import { deletePost } from "@/app/actions";
+import Link from "next/link";
 import ImageCard from "@/app/components/image-card";
 import ShareButton from "@/app/components/share-button";
+import DeleteButton from "@/app/components/delete-button";
 import type { ImageWithCaptions } from "@/lib/types";
 
 async function getImage(id: string) {
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/i/[id]">): Promis
     if (!image) return {};
 
     const best = [...image.captions].sort((a, b) => b.score - a.score)[0];
-    const title = best ? `“${best.content}”` : "CapCity";
+    const title = best ? `“${best.content}”` : "Post";
     const description = "Vote on the funniest AI caption on CapCity.";
     const images = [imageUrl(image.storage_path)];
     return {
@@ -49,15 +50,28 @@ export default async function ImagePage({ params }: PageProps<"/i/[id]">) {
 
     return (
         <main className="space-y-4">
-            <ImageCard image={image} myVotes={myVotes} loggedIn={Boolean(userId)} priority />
-            <div className="flex items-center gap-4">
+            <Link href="/" className="inline-block text-sm font-semibold text-muted hover:text-foreground">
+                ← Back to feed
+            </Link>
+            <ImageCard image={image} myVotes={myVotes} loggedIn={Boolean(userId)} preload />
+            <div className="flex items-center gap-3">
                 <ShareButton path={`/i/${image.id}`} text={best?.content ?? "Look at this on CapCity"} />
-                {userId === image.user_id && (
-                    <form action={deletePost.bind(null, image.id)}>
-                        <button type="submit" className="text-sm text-red-600 hover:underline">Delete post</button>
-                    </form>
+                {userId && (
+                    <Link href="/rate" className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-foreground/5">
+                        Rate more photos →
+                    </Link>
                 )}
+                <span className="flex-1" />
+                {userId === image.user_id && <DeleteButton imageId={image.id} />}
             </div>
+            {!userId && (
+                <p className="rounded-2xl border border-border bg-card p-4 text-sm">
+                    <Link href={`/login?next=/i/${image.id}`} className="font-semibold text-accent hover:underline">
+                        Log in with Google
+                    </Link>{" "}
+                    to vote for your favorite caption.
+                </p>
+            )}
         </main>
     );
 }

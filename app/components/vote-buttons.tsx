@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useOptimistic, useState, useTransition } from "react";
 import { vote } from "@/app/actions";
 import type { Vote } from "@/lib/types";
@@ -12,7 +13,10 @@ type Props = {
     loggedIn: boolean;
 };
 
+const BUTTON = "grid size-9 place-items-center rounded-full transition active:scale-90";
+
 export default function VoteButtons({ captionId, score, myVote, loggedIn }: Props) {
+    const pathname = usePathname();
     const [error, setError] = useState<string | null>(null);
     const [, startTransition] = useTransition();
     const [state, setOptimistic] = useOptimistic(
@@ -21,11 +25,16 @@ export default function VoteButtons({ captionId, score, myVote, loggedIn }: Prop
     );
 
     if (!loggedIn) {
+        const login = `/login?next=${encodeURIComponent(pathname)}`;
         return (
-            <div className="flex w-12 shrink-0 flex-col items-center text-muted">
-                <Link href="/login" title="Log in to vote" className="px-2 hover:text-up" aria-label="Log in to upvote">▲</Link>
-                <span className="text-sm font-semibold tabular-nums">{score}</span>
-                <Link href="/login" title="Log in to vote" className="px-2 hover:text-down" aria-label="Log in to downvote">▼</Link>
+            <div className="flex w-10 shrink-0 flex-col items-center text-muted">
+                <Link href={login} title="Log in to vote" aria-label="Log in to upvote" className={`${BUTTON} hover:bg-up/10 hover:text-up`}>
+                    <Arrow up />
+                </Link>
+                <span className="text-sm font-bold tabular-nums">{score}</span>
+                <Link href={login} title="Log in to vote" aria-label="Log in to downvote" className={`${BUTTON} hover:bg-down/10 hover:text-down`}>
+                    <Arrow />
+                </Link>
             </div>
         );
     }
@@ -42,18 +51,19 @@ export default function VoteButtons({ captionId, score, myVote, loggedIn }: Prop
     }
 
     return (
-        <div className="flex w-12 shrink-0 flex-col items-center">
+        <div className="flex w-10 shrink-0 flex-col items-center">
             <button
                 type="button"
                 onClick={() => cast(1)}
                 aria-label="Upvote"
                 aria-pressed={state.vote === 1}
-                className={`px-2 ${state.vote === 1 ? "text-up" : "text-muted hover:text-up"}`}
+                title="Funny"
+                className={`${BUTTON} ${state.vote === 1 ? "bg-up text-white dark:text-black" : "text-muted hover:bg-up/10 hover:text-up"}`}
             >
-                ▲
+                <Arrow up />
             </button>
             <span
-                className={`text-sm font-semibold tabular-nums ${
+                className={`text-sm font-bold tabular-nums ${
                     state.vote === 1 ? "text-up" : state.vote === -1 ? "text-down" : ""
                 }`}
             >
@@ -64,11 +74,20 @@ export default function VoteButtons({ captionId, score, myVote, loggedIn }: Prop
                 onClick={() => cast(-1)}
                 aria-label="Downvote"
                 aria-pressed={state.vote === -1}
-                className={`px-2 ${state.vote === -1 ? "text-down" : "text-muted hover:text-down"}`}
+                title="Not funny"
+                className={`${BUTTON} ${state.vote === -1 ? "bg-down text-white dark:text-black" : "text-muted hover:bg-down/10 hover:text-down"}`}
             >
-                ▼
+                <Arrow />
             </button>
             {error && <span role="alert" className="mt-1 text-center text-xs text-red-600">{error}</span>}
         </div>
+    );
+}
+
+function Arrow({ up }: { up?: boolean }) {
+    return (
+        <svg viewBox="0 0 24 24" className={`size-5 ${up ? "" : "rotate-180"}`} fill="currentColor" aria-hidden>
+            <path d="M12 4 3 15h6v5h6v-5h6z" />
+        </svg>
     );
 }

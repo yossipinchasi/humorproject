@@ -56,3 +56,23 @@ Who voted for what stays private, and public totals come from the trigger.
   - An optional "What's going on here?" field gives the AI context it can't see, like "first time seeing a rat this big on the 1 train".
   - Guardrails: the prompt tells the model to punch up, never at people's appearance or identity. Uploaders can delete their posts. There's a 10-posts-per-day limit so one person can't use up the free AI quota.
   - The feed shows only the top 3 captions per photo, so the best jokes appear first and scrolling stays fast.
+
+## Week 5: feedback and iteration
+
+What I changed after watching people use the app, and why:
+
+| Feedback | Change |
+| --- | --- |
+| "I don't get what this site is." First-time visitors saw a feed with no explanation. | A **Snap → Caption → Vote** intro for logged-out visitors, with one clear call to action. |
+| Screenshots and portrait photos got cropped into squares, which killed the joke. | Photos are shown **whole**, letterboxed over a blurred copy so cards keep the same shape. |
+| The ▲/▼ arrows were tiny and hard to hit on a phone. | 36px round vote buttons that **fill with color** when chosen, with a 👑 badge on the leading caption. |
+| Clicking vote while logged out lost your place. | Login now **sends you back to the page you were on** (stored in a short-lived cookie, checked against open redirects). |
+| The login page was a bare button. | A branded login card with a proper Google button and what you get by signing in. |
+| Style tags in grey caps were easy to miss. | Color-coded **style chips** with emoji (🛏️ Dorm life, 🗽 NYC newcomer, …). |
+| "Why would I come back?" | **Rate mode** (`/rate`) shows one photo you haven't voted on at a time, with a progress bar. Captions appear in a fixed order so the crowd's ranking doesn't sway your vote. The feed shows how many photos are waiting for your vote. |
+| "I posted something, how is it doing?" | A **Me** page (`/me`) with your posts, upvotes earned, votes cast, and which humor style wins on your photos. |
+| Generating captions took ~10s with a static "Writing captions…" label. | Upload has **drag-and-drop**, one-tap context ideas, and progress messages while Gemini works. |
+| Deleting a post was one stray tap away. | A two-step inline "Delete for good?" confirmation. |
+
+Also: a loading skeleton, a custom 404 page, page titles per route, and dark mode checked on every new screen.
+`/rate`, `/me` and `/upload` are protected both in the proxy and on the server.
