@@ -56,7 +56,7 @@ export async function createPost(_prev: UploadState, formData: FormData): Promis
         ({ captions, model } = await generateCaptions({ data, mimeType: file.type }, prompt));
     } catch (e) {
         console.error("Caption generation failed:", e);
-        return { error: "The AI couldn't caption that photo. Try a different one." };
+        return { error: "The AI is busy right now and couldn't write captions. Please try again in a minute." };
     }
     if (captions.length === 0) {
         return { error: "The AI couldn't caption that photo. Try a different one." };

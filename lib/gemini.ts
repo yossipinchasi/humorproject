@@ -1,9 +1,20 @@
 import "server-only";
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel, Type } from "@google/genai";
 
-// Tried in order: Gemini's free tier often returns 503 "high demand" for the
-// main Flash model, so fall back to the lighter one instead of failing.
-const MODELS = [process.env.GEMINI_MODEL ?? "gemini-flash-latest", "gemini-flash-lite-latest"];
+// Tried in order. On the free tier the gemini-flash-latest alias often returns
+// 503 "high demand" or hangs, so start with a pinned Flash and fall back instead
+// of failing. Duplicates (e.g. GEMINI_MODEL set to a fallback) are dropped.
+const MODELS = [
+    ...new Set([
+        process.env.GEMINI_MODEL || "gemini-3.5-flash",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+    ]),
+];
+
+// Per-model limit, so one slow model can't eat the whole request (see
+// maxDuration in app/upload/page.tsx). Normal calls take 2–6 seconds.
+const MODEL_TIMEOUT_MS = 15_000;
 
 const STYLES = ["dorm life", "nyc newcomer", "chronically online", "deadpan", "wholesome"] as const;
 
@@ -74,6 +85,9 @@ async function callModel(
         ],
         config: {
             temperature: 1.1,
+            // Default thinking made Flash take ~50s per photo; short captions don't need it.
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+            httpOptions: { timeout: MODEL_TIMEOUT_MS },
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.ARRAY,

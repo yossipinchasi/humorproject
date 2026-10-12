@@ -5,6 +5,10 @@ import UploadForm from "./upload-form";
 
 export const metadata: Metadata = { title: "Post a photo" };
 
+// Applies to the createPost Server Action too. Gemini can need a few attempts
+// (3 models x 15s timeout in lib/gemini.ts), well past the platform's default limit.
+export const maxDuration = 60;
+
 export default async function UploadPage() {
     const supabase = await createClient();
 
